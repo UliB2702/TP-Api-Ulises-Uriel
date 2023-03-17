@@ -26,18 +26,21 @@ public class PizzasController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetbyId(int id)
     {
+        IActionResult respuesta = null;
         if(id <= 0)
         {
-          return BadRequest();
+          respuesta = BadRequest();
         }
         Pizza p = BD.BuscarPizzaPorId(id);
 
         if(p == null)
         {
-          return NotFound();
+          respuesta = NotFound();
         }
-
-        return Ok(p);
+        else{
+        respuesta =  Ok(p);
+        }
+        return respuesta;
     }
 
     [HttpPost]
@@ -50,34 +53,47 @@ public class PizzasController : ControllerBase
   [HttpPut("{id}")]
     public IActionResult Update(int id, Pizza pizza)
     {
+      IActionResult respuesta = null;
+      int intRowsAffected;
       if(pizza.Id != id)
       {
-          return BadRequest();
+          respuesta = BadRequest();
       }
-      Pizza pizza2 = BD.BuscarPizzaPorId(id);
-       if(pizza2 == null)
-       {
-          return NotFound();
+
+       else{
+        intRowsAffected = BD.ActualizarPizza(id, pizza);
+        if (intRowsAffected > 0){
+            respuesta = Ok(pizza);
+        }
+        else{
+          respuesta = NotFound();
+        }
+        
        }
-      BD.ActualizarPizza(id, pizza);
-      return Ok();
+      return respuesta;
     }
 
   [HttpDelete("{id}")]
     public IActionResult DeleteById(int id)
     {
-      
+      int intRowsAffected;
+      IActionResult respuesta = null;
        if(id <= 0)
        {
-          return BadRequest();
+          respuesta = BadRequest();
        }
-      Pizza pizza = BD.BuscarPizzaPorId(id);
-       if(pizza == null)
-       {
-          return NotFound();
+       else{
+          intRowsAffected =  BD.BorrarPizzas(id);
+          if(intRowsAffected > 0){
+              respuesta = Ok();
+          }
+          else{
+            respuesta = NotFound();
+          }
        }
-       BD.BorrarPizzas(id);
-       return Ok();
+       
+      
+       return respuesta;
     }
 
 

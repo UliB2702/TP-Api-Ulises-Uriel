@@ -8,7 +8,7 @@ using Dapper;
 namespace PizzaAPI.Models;
 
 public class BD{
-private static string _connectionString = @"Persist Security Info=False;User ID=Pizzas;password=Pizzas;Initial Catalog=DAI-Pizzas;Data Source=.;";
+private static string _connectionString = @"Server=A-PHZ2-CIDI-017;DataBase=DAI-Pizzas;Trusted_Connection=True";
 
 public static List<Pizza> BuscarPizzas(){
     List<Pizza> lista = new List<Pizza>();
@@ -20,35 +20,39 @@ public static List<Pizza> BuscarPizzas(){
 }
 
 public static Pizza BuscarPizzaPorId(int id){
-    List<Pizza> pizza = new List<Pizza>();
+    Pizza pizza = null;
     using(SqlConnection db = new SqlConnection(_connectionString)){
         string sql = "SELECT * FROM Pizzas WHERE Id = @pid";
-        pizza = db.Query<Pizza>(sql, new{pid = id}).ToList();
+        pizza = db.QueryFirstOrDefault<Pizza>(sql, new{pid = id});
     }
-    return pizza[0];
+    return pizza;
 }
 
 public static void CrearPizzas(Pizza p)
 {
     string sql = "INSERT INTO Pizzas VALUES (@pNombre, @pLibregluten, @pImporte, @pDescripcion)";
     using(SqlConnection db = new SqlConnection(_connectionString)){
-        db.Execute(sql, new {pNombre = p.Id, pLibreGluten = p.LibreGluten, pImporte = p.Importe, pDescripcion = p.Descripcion});
+            db.Execute(sql, new {pNombre = p.Nombre, pLibreGluten = p.LibreGluten, pImporte = p.Importe, pDescripcion = p.Descripcion});
     }
 }
 
-public static void ActualizarPizza(int id, Pizza p)
+public static int ActualizarPizza(int id, Pizza p)
 {
     string sql = "UPDATE Pizzas SET Nombre = @pNombre, LibreGluten = @pLibregluten, Importe = @pImporte, Descripcion = @pDescripcion WHERE Id = @pid";
+    int intRowsAffected = 0;
     using(SqlConnection db = new SqlConnection(_connectionString)){
-        db.Execute(sql, new {pNombre = p.Id, pLibreGluten = p.LibreGluten, pImporte = p.Importe, pDescripcion = p.Descripcion, pid = id});
+        intRowsAffected = db.Execute(sql, new {pNombre = p.Nombre, pLibreGluten = p.LibreGluten, pImporte = p.Importe, pDescripcion = p.Descripcion, pid = id});
     }
+    return intRowsAffected;
 }
 
-public static void BorrarPizzas(int id)
+public static int BorrarPizzas(int id)
 {
     string sql = "DELETE FROM Pizzas WHERE Id = @pid";
+    int intRowsAffected = 0;
     using(SqlConnection db = new SqlConnection(_connectionString)){
-        db.Execute(sql, new{pid = id});
+        intRowsAffected = db.Execute(sql, new{pid = id});
     }
+    return intRowsAffected;
 }
 }
